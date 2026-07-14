@@ -1,0 +1,4600 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Facilities Rental Portal Prototype</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #5e6875;
+      --line: #d8dee6;
+      --soft: #f5f7fa;
+      --panel: #ffffff;
+      --accent: #1f6f8b;
+      --accent-dark: #154d61;
+      --green: #277354;
+      --red: #9d3434;
+      --gold: #8a641d;
+      --blue-soft: #e8f3f7;
+      --green-soft: #e9f5ef;
+      --red-soft: #faeeee;
+      --gold-soft: #fff4db;
+      --shadow: 0 10px 28px rgba(18, 31, 44, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #eef2f6;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #fff;
+      background: var(--accent);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover { background: var(--accent-dark); }
+    button.secondary {
+      color: var(--ink);
+      background: #e9edf2;
+    }
+    button.secondary:hover { background: #dde4ec; }
+    button.danger { background: var(--red); }
+    button.danger:hover { background: #7f2828; }
+    button.success { background: var(--green); }
+    button.success:hover { background: #1e5d43; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+    }
+
+    .public-header { display: none; }
+
+    body.public-mode .app { display: block; }
+    body.public-mode aside { display: none; }
+    body.public-mode main { padding: 0; }
+    body.public-mode .public-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 74px;
+      padding: 14px max(24px, calc((100vw - 1180px) / 2));
+      color: #fff;
+      background: #182633;
+    }
+
+    .public-brand { display: flex; align-items: center; gap: 12px; color: #fff; }
+    .public-brand .brand-mark { width: 40px; height: 40px; }
+    .public-brand strong { display: block; }
+    .public-brand span { display: block; color: #bdd1dc; font-size: 12px; }
+    .public-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+    .public-nav button { color: #eaf1f5; background: transparent; }
+    .public-nav button:hover { background: #243746; }
+    .public-nav .primary-public { color: #182633; background: #d7f0ef; }
+    .public-nav .primary-public:hover { background: #bfe3e1; }
+    body.public-mode .view.active { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    aside {
+      background: #182633;
+      color: #eef6fb;
+      padding: 22px 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: #d7f0ef;
+      color: #1d5c59;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .brand strong { display: block; font-size: 16px; }
+    .brand span { color: #bdd1dc; font-size: 13px; }
+
+    .identity { margin: 0 0 20px; padding: 12px; border: 1px solid #355166; border-radius: 8px; background: #213342; }
+    .identity label { color: #bdd1dc; font-size: 12px; }
+    .identity select { margin-top: 6px; color: var(--ink); background: #fff; }
+    .identity .signed-in { margin-top: 8px; color: #eef6fb; font-size: 12px; }
+
+    nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      color: #eaf1f5;
+      background: transparent;
+      border: 1px solid transparent;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .nav-button:hover, .nav-button.active {
+      background: #243746;
+      border-color: #355166;
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      color: #9bd1d4;
+    }
+
+    main {
+      min-width: 0;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    p { margin: 0 0 12px; color: var(--muted); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .stat .number {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill.blue { color: #18536b; background: var(--blue-soft); }
+    .pill.green { color: #1f674a; background: var(--green-soft); }
+    .pill.red { color: #872d2d; background: var(--red-soft); }
+    .pill.gold { color: #755217; background: var(--gold-soft); }
+    .pill.gray { color: #4d5965; background: #eef1f4; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #46515d;
+      background: #f6f8fa;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    tr:hover td { background: #fbfcfd; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .segmented {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .segmented button {
+      border-radius: 0;
+      color: var(--ink);
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 8px 10px;
+    }
+
+    .segmented button:last-child { border-right: 0; }
+    .segmented button.active {
+      color: #fff;
+      background: var(--accent);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #37424d;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #cbd3dc;
+      border-radius: 6px;
+      padding: 10px 11px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .facility-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .catalog-filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(150px, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin: 18px 0 10px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .catalog-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 18px;
+    }
+
+    .catalog-summary button { flex: 0 0 auto; }
+
+    .empty-catalog {
+      grid-column: 1 / -1;
+      padding: 36px 20px;
+      text-align: center;
+      border: 1px dashed #aebbc5;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .school-section { grid-column: 1 / -1; }
+    .school-section + .school-section { margin-top: 12px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .school-section > h2 { margin-bottom: 12px; }
+    .school-facilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+    .facility-card {
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .facility-photo {
+      min-height: 126px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      background:
+        linear-gradient(135deg, rgba(20, 77, 97, 0.84), rgba(39, 115, 84, 0.72)),
+        repeating-linear-gradient(45deg, #6d8fa0 0 12px, #7ca49b 12px 24px);
+    }
+
+    .facility-body { padding: 14px; }
+    .facility-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--accent);
+      background: var(--blue-soft);
+      padding: 12px;
+      border-radius: 6px;
+      color: #234455;
+      font-size: 14px;
+    }
+
+    .notice.warning {
+      border-left-color: var(--gold);
+      background: var(--gold-soft);
+      color: #5d4518;
+    }
+
+    .notice.error {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+      color: #6e2727;
+    }
+
+    .estimate-box {
+      grid-column: 1 / -1;
+      padding: 18px;
+      border: 1px solid #bfd2ee;
+      border-radius: 8px;
+      background: #f1f5fd;
+    }
+
+    .estimate-box h2 { color: #203f6d; }
+    .estimate-lines { display: grid; gap: 8px; margin: 14px 0; }
+    .estimate-line { display: flex; justify-content: space-between; gap: 20px; }
+    .estimate-line span:last-child { text-align: right; font-weight: 700; }
+    .estimate-line.pending { color: #68758a; font-style: italic; }
+    .estimate-total { padding-top: 10px; border-top: 1px solid #bfd2ee; color: #203f6d; font-size: 18px; font-weight: 900; }
+    .estimate-disclaimer { margin: 12px 0 0; color: #536580; font-size: 13px; }
+    .conditional-field[hidden] { display: none; }
+
+    .policy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .policy-item { padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .policy-item strong { display: block; margin-bottom: 4px; }
+    .role-banner { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 16px; padding: 14px 16px; border-left: 4px solid var(--accent); background: var(--blue-soft); }
+    .due { color: var(--red); font-weight: 800; }
+
+    fieldset { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
+    legend { padding: 0 7px; font-weight: 800; }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #98a5b2;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .step.done .dot { background: var(--green); }
+    .step.current .dot { background: var(--accent); }
+    .step.blocked .dot { background: var(--red); }
+
+    .step strong { display: block; }
+    .step span { color: var(--muted); font-size: 13px; }
+
+    .request-detail {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+      gap: 16px;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafbfc;
+    }
+
+    .fake-link {
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; }
+    .money { font-weight: 900; color: #24313b; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 25, 34, 0.52);
+      z-index: 50;
+    }
+
+    .modal-backdrop.active { display: grid; }
+    .modal {
+      width: min(620px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.25);
+      padding: 18px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .x {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      color: var(--ink);
+      background: #edf1f4;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-3, .span-4, .span-5, .span-7, .span-8 { grid-column: span 12; }
+      .facility-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .school-facilities { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .request-detail { grid-template-columns: 1fr; }
+      .catalog-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      main { padding: 16px; }
+      body.public-mode .view.active { width: min(100% - 32px, 1180px); padding-top: 20px; }
+      body.public-mode .public-header { align-items: flex-start; padding: 14px 16px; }
+      .public-nav { gap: 2px; }
+      .public-nav button { padding: 8px; font-size: 13px; }
+      .public-brand span { display: none; }
+      .topbar { display: block; }
+      nav { grid-template-columns: 1fr; }
+      .form-grid, .facility-list { grid-template-columns: 1fr; }
+      .school-facilities { grid-template-columns: 1fr; }
+      .policy-grid, fieldset { grid-template-columns: 1fr; }
+      .catalog-filters { grid-template-columns: 1fr; }
+      .catalog-summary { align-items: flex-start; flex-direction: column; }
+      table { font-size: 13px; }
+      th, td { padding: 9px 7px; }
+    }
+  </style>
+</head>
+<body class="public-mode">
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">HC</div>
+        <div>
+          <strong>Facilities Rental Portal</strong>
+          <span>Workflow prototype</span>
+        </div>
+      </div>
+      <div class="identity">
+        <label for="roleSelect">Preview signed-in role</label>
+        <select id="roleSelect">
+          <option value="school">School approver</option>
+          <option value="operations">School Operations</option>
+          <option value="secretary">Facilities Department</option>
+          <option value="committee">Facilities Committee</option>
+          <option value="admin">Facilities administrator</option>
+        </select>
+        <div class="signed-in" id="signedInAs">Signed in as Alex Morgan</div>
+      </div>
+      <nav aria-label="Prototype sections">
+        <button class="nav-button" data-view="dashboard"><span class="nav-icon">▦</span>Dashboard</button>
+        <button class="nav-button active" data-view="public"><span class="nav-icon">⌂</span>Public portal</button>
+        <button class="nav-button" data-view="request"><span class="nav-icon">＋</span>New request</button>
+        <button class="nav-button" data-view="status"><span class="nav-icon">↗</span>Status link</button>
+        <button class="nav-button" data-view="report" data-roles="secretary admin"><span class="nav-icon">▤</span>Monthly report</button>
+        <button class="nav-button" data-view="settings" data-roles="admin"><span class="nav-icon">⚙</span>Setup data</button>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="public-header">
+        <div class="public-brand">
+          <div class="brand-mark">HC</div>
+          <div><strong>Houston County School District</strong><span>Facilities available for community rental</span></div>
+        </div>
+        <nav class="public-nav" aria-label="Public navigation">
+          <button type="button" data-view-link="public">Browse facilities</button>
+          <button type="button" data-view-link="status">Check request status</button>
+          <button type="button" class="primary-public" data-view-link="request">Request a facility</button>
+          <button type="button" data-staff-preview>Staff sign in</button>
+        </nav>
+      </header>
+
+      <section id="dashboard" class="view">
+        <div class="topbar">
+          <div>
+            <h1 id="dashboardTitle">School approval queue</h1>
+            <p id="dashboardSubtitle">Requests for the schools you support. One decision is recorded after the principal, AP, and secretary are notified.</p>
+          </div>
+          <button data-view-link="request">New public request</button>
+        </div>
+
+        <div class="role-banner">
+          <div><strong id="roleBannerTitle">What you see after sign-in</strong><div id="roleBannerText">Requests awaiting your school-level decision, deadlines, event details, and approve or deny actions.</div></div>
+          <span class="pill blue" id="roleBadge">School approver</span>
+        </div>
+
+        <div class="grid">
+          <div class="panel span-3 stat">
+            <div><div class="label">Active requests</div><div class="number" id="activeCount">0</div></div>
+            <span class="pill blue">Open</span>
+          </div>
+          <div class="panel span-3 stat">
+            <div><div class="label">Needs approval</div><div class="number" id="approvalCount">0</div></div>
+            <span class="pill gold">Review</span>
+          </div>
+          <div class="panel span-3 stat">
+            <div><div class="label" id="thirdStatLabel">Due in 2 days</div><div class="number" id="insuranceCount">0</div></div>
+            <span class="pill blue" id="thirdStatBadge">Target</span>
+          </div>
+          <div class="panel span-3 stat">
+            <div><div class="label">Reportable this month</div><div class="number" id="reportCount">0</div></div>
+            <span class="pill gray">Board</span>
+          </div>
+
+          <div class="panel span-8">
+            <div class="toolbar">
+              <h2>Requests</h2>
+              <div class="segmented" id="requestFilter">
+                <button class="active" data-filter="all">All</button>
+                <button data-filter="review">Review</button>
+                <button data-filter="requirements">Requirements</button>
+                <button data-filter="closed">Closed</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Event</th>
+                  <th>Facility</th>
+                  <th>Status</th>
+                  <th>Next owner</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="requestRows"></tbody>
+            </table>
+          </div>
+
+          <div class="panel span-4">
+            <h2>Selected request</h2>
+            <div id="detailPanel"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="public" class="view active">
+        <div class="topbar">
+          <div>
+            <h1>Facilities available for community rental</h1>
+            <p>Browse by school, review estimated costs, and submit a request without creating an account.</p>
+          </div>
+          <button data-view-link="request">Request a facility</button>
+        </div>
+        <div class="policy-grid">
+          <div class="policy-item"><strong>Outside organizations only</strong><span class="muted small">School groups, booster clubs, and government agreements use a separate process.</span></div>
+          <div class="policy-item"><strong>Plan at least 10 business days ahead</strong><span class="muted small">Short-notice requests cannot be submitted.</span></div>
+          <div class="policy-item"><strong>Personnel costs are estimates</strong><span class="muted small">One custodian is included. The committee may require additional custodians, maintenance, or law enforcement.</span></div>
+        </div>
+        <div class="notice warning" style="margin-bottom:16px">Private family events are not eligible. Kitchens, science labs, agriculture labs, and family and consumer sciences labs are not available for rent.</div>
+        <div class="catalog-filters" aria-label="Facility catalog filters">
+          <label>Search
+            <input id="catalogSearch" type="search" placeholder="School or facility name" />
+          </label>
+          <label>School level
+            <select id="catalogLevel"><option value="">All levels</option></select>
+          </label>
+          <label>Facility type
+            <select id="catalogType"><option value="">All facility types</option></select>
+          </label>
+          <label>School
+            <select id="catalogSchool"><option value="">All schools</option></select>
+          </label>
+        </div>
+        <div class="catalog-summary">
+          <strong id="catalogCount">163 facilities at 38 schools</strong>
+          <button type="button" class="secondary" id="clearCatalogFilters">Clear filters</button>
+        </div>
+        <div class="facility-list" id="facilityCards"></div>
+      </section>
+
+      <section id="request" class="view">
+        <div class="topbar">
+          <div>
+            <h1>Building / facility rental application</h1>
+            <p>Requests fewer than 10 business days before the rental date are blocked at submission.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <form id="rentalForm" class="form-grid">
+            <fieldset>
+              <legend>Organization eligibility</legend>
+              <label>Organization type
+                <select required name="organizationType">
+                  <option>Nonprofit or community organization</option>
+                  <option>Business</option>
+                  <option>Association</option>
+                </select>
+              </label>
+              <label>Houston County connection
+                <select required name="countyEligibility">
+                  <option>Located in Houston County</option>
+                  <option>Primarily composed of Houston County residents</option>
+                </select>
+              </label>
+            </fieldset>
+            <label>Organization or group name
+              <input required name="group" value="Houston County Robotics Club" />
+            </label>
+            <label>Responsible contact
+              <input required name="contact" value="Jordan Lee" />
+            </label>
+            <label>Email address
+              <input required type="email" name="email" value="jordan.lee@example.org" />
+            </label>
+            <label>Phone
+              <input name="phone" value="478-555-0184" />
+            </label>
+            <label>Requested school
+              <select required name="school" id="schoolSelect"></select>
+            </label>
+            <label>Facility
+              <select required name="facility" id="facilitySelect"></select>
+            </label>
+            <label>First rental date
+              <input required type="date" name="date" id="rentalDate" />
+            </label>
+            <label>Last rental date
+              <input required type="date" name="endDate" id="rentalEndDate" />
+            </label>
+            <label>Expected attendance
+              <input required type="number" min="1" name="attendance" value="180" />
+            </label>
+            <label>Start time
+              <input required type="time" name="start" value="17:00" />
+            </label>
+            <label>End time
+              <input required type="time" name="end" value="21:00" />
+            </label>
+            <label>Will there be a charge for the event?
+              <select name="charged">
+                <option>No</option>
+                <option>Yes</option>
+              </select>
+            </label>
+            <label>If yes, how much?
+              <input name="chargeAmount" placeholder="$0.00" />
+            </label>
+            <label class="full">Purpose of rental
+              <textarea required name="purpose">Regional robotics showcase and awards program.</textarea>
+            </label>
+            <label class="full conditional-field" id="lightsField" hidden>
+              <span><input type="checkbox" name="stadiumLights" id="stadiumLights" style="width:auto;margin-right:8px" />Add stadium lights at $300 per four-hour block</span>
+            </label>
+            <label class="full">How will collected money be used?
+              <textarea name="moneyUse">No admission will be charged. Concession donations support student travel.</textarea>
+            </label>
+            <label class="full">Address
+              <input required name="address" value="1200 Main Street, Perry, GA 31069" />
+            </label>
+            <label class="full">
+              <span><input required type="checkbox" checked style="width:auto;margin-right:8px" />I electronically agree to district procedures and the indemnification/hold harmless terms, including occupancy, signage, safety, equipment supervision, and prohibited-material rules.</span>
+            </label>
+            <label class="full">Electronic signature
+              <input required name="signature" value="Jordan Lee" />
+            </label>
+            <div class="full notice warning" id="dateNotice">Choose a date at least 10 business days from today.</div>
+            <section class="estimate-box" aria-live="polite" aria-labelledby="estimateTitle">
+              <h2 id="estimateTitle">Estimated cost</h2>
+              <p>Estimate only; the final amount is set during approval.</p>
+              <div class="estimate-lines" id="estimateLines"></div>
+              <div class="estimate-line estimate-total"><span>Estimated minimum total</span><span id="estimateTotal">$0+</span></div>
+              <p class="estimate-disclaimer"><strong>Important:</strong> One custodian is included for all scheduled event hours. Stadiums and other events may require additional custodians. The Facilities Committee may also require law enforcement at $50/hour and maintenance at $42/hour. Any additional required personnel will increase the final cost.</p>
+            </section>
+            <div class="full action-row">
+              <button type="submit">Submit request</button>
+              <button type="button" class="secondary" id="fillTooSoon">Try blocked date</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="status" class="view">
+        <div class="topbar">
+          <div>
+            <h1>Requester status link</h1>
+            <p>No requester login is required. A secure emailed link shows decisions, conditions, estimated charges, documents, and payment status.</p>
+          </div>
+        </div>
+        <div class="request-detail">
+          <div class="panel">
+            <h2 id="statusTitle">Status</h2>
+            <div id="statusSummary"></div>
+            <hr style="border:0;border-top:1px solid var(--line);margin:16px 0" />
+            <h2>Timeline</h2>
+            <div class="timeline" id="statusTimeline"></div>
+          </div>
+          <div class="panel">
+            <h2>Required before final approval</h2>
+            <p class="small">Insurance upload appears after committee approval. Payment is due at least five business days before the event.</p>
+            <div id="requesterRequirements"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="report" class="view">
+        <div class="topbar">
+          <div>
+            <h1>Monthly facilities report</h1>
+            <p>Includes submitted requests and outcomes, including school-level denials.</p>
+          </div>
+          <button onclick="window.print()">Print report</button>
+        </div>
+        <div class="panel">
+          <div class="toolbar">
+            <h2>July 2026 board report</h2>
+            <span class="pill gray">Prototype export view</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Request</th>
+                <th>Requester</th>
+                <th>Facility</th>
+                <th>Date</th>
+                <th>Outcome</th>
+                <th>Decision level</th>
+                <th>Reason / notes</th>
+              </tr>
+            </thead>
+            <tbody id="reportRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="settings" class="view">
+        <div class="topbar">
+          <div>
+            <h1>Setup data</h1>
+            <p>Sample management screens for the real data you said you do not have fully collected yet.</p>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="panel span-7">
+            <h2>Schools and first approvers</h2>
+            <table>
+              <thead><tr><th>School</th><th>Principal / phone</th><th>Access email</th><th>Stadium route</th></tr></thead>
+              <tbody id="schoolRows"></tbody>
+            </table>
+          </div>
+          <div class="panel span-5">
+            <h2>Workflow rules</h2>
+            <div class="checklist">
+              <div class="check-item"><span>Requests less than 10 business days out</span><span class="pill red">Blocked</span></div>
+              <div class="check-item"><span>Standard first-level notification</span><span class="pill blue">Principal + AP + secretary</span></div>
+              <div class="check-item"><span>High school stadium first approver</span><span class="pill gold">School Operations</span></div>
+              <div class="check-item"><span>After first approval</span><span class="pill blue">Facilities Department</span></div>
+              <div class="check-item"><span>Committee decision</span><span class="pill blue">Single entry</span></div>
+              <div class="check-item"><span>Approval turnaround target</span><span class="pill gold">2 business days</span></div>
+              <div class="check-item"><span>Payment workflow at launch</span><span class="pill gray">Check recorded manually</span></div>
+            </div>
+          </div>
+          <div class="panel span-12">
+            <h2>Facilities Committee</h2>
+            <p>Dr. Chris Brown, Dr. Richard Rogers, Billy Dollar, and Forrest Walker. The committee makes one decision; an authorized staff member records it and may add conditions or adjust estimated charges.</p>
+          </div>
+          <div class="panel span-12">
+            <h2>Fee schedule</h2>
+            <table>
+              <thead><tr><th>Facility type</th><th>Hourly rental</th><th>4-hour block</th><th>Custodial OT</th><th>Law enforcement</th><th>Maintenance OT</th></tr></thead>
+              <tbody id="feeRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">Prototype message</h2>
+          <p id="modalText"></p>
+        </div>
+        <button class="x" id="closeModal" aria-label="Close">×</button>
+      </div>
+      <div class="action-row" id="modalActions"></div>
+    </div>
+  </div>
+
+  <script>
+    const facilities = [
+      {
+        "id": "bonaire-elementary--classroom",
+        "level": "Elementary",
+        "school": "Bonaire Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Bonaire Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Bonaire Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Bonaire Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Bonaire Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Bonaire Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-primary--classroom",
+        "level": "Elementary",
+        "school": "Bonaire Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Bonaire Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-primary--cafeteria",
+        "level": "Elementary",
+        "school": "Bonaire Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Bonaire Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "Bonaire Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Bonaire Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "c-b-watson-primary--classroom",
+        "level": "Elementary",
+        "school": "C.B. Watson Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "C.B. Watson Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "c-b-watson-primary--cafeteria",
+        "level": "Elementary",
+        "school": "C.B. Watson Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "C.B. Watson Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "c-b-watson-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "C.B. Watson Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "C.B. Watson Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "centerville-elementary--classroom",
+        "level": "Elementary",
+        "school": "Centerville Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Centerville Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "centerville-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Centerville Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Centerville Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "centerville-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Centerville Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Centerville Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-elementary--classroom",
+        "level": "Elementary",
+        "school": "David Perdue Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "David Perdue Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "David Perdue Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "David Perdue Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "David Perdue Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "David Perdue Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-primary--classroom",
+        "level": "Elementary",
+        "school": "David Perdue Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "David Perdue Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-primary--cafeteria",
+        "level": "Elementary",
+        "school": "David Perdue Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "David Perdue Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "david-perdue-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "David Perdue Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "David Perdue Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "eagle-springs-elementary--classroom",
+        "level": "Elementary",
+        "school": "Eagle Springs Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Eagle Springs Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "eagle-springs-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Eagle Springs Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Eagle Springs Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "eagle-springs-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Eagle Springs Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Eagle Springs Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "hilltop-elementary--classroom",
+        "level": "Elementary",
+        "school": "Hilltop Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Hilltop Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "hilltop-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Hilltop Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Hilltop Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "hilltop-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Hilltop Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Hilltop Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "kings-chapel-elementary--classroom",
+        "level": "Elementary",
+        "school": "Kings Chapel Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Kings Chapel Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "kings-chapel-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Kings Chapel Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Kings Chapel Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "kings-chapel-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Kings Chapel Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Kings Chapel Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-elementary--classroom",
+        "level": "Elementary",
+        "school": "Lake Joy Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Lake Joy Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Lake Joy Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Lake Joy Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Lake Joy Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Lake Joy Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-primary--classroom",
+        "level": "Elementary",
+        "school": "Lake Joy Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Lake Joy Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-primary--cafeteria",
+        "level": "Elementary",
+        "school": "Lake Joy Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Lake Joy Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "lake-joy-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "Lake Joy Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Lake Joy Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-elementary--classroom",
+        "level": "Elementary",
+        "school": "Langston Road Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Langston Road Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Langston Road Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Langston Road Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Langston Road Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Langston Road Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-primary--classroom",
+        "level": "Elementary",
+        "school": "Langston Road Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Langston Road Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-primary--cafeteria",
+        "level": "Elementary",
+        "school": "Langston Road Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Langston Road Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "langston-road-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "Langston Road Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Langston Road Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-elementary--classroom",
+        "level": "Elementary",
+        "school": "Matt Arthur Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Matt Arthur Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Matt Arthur Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Matt Arthur Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Matt Arthur Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Matt Arthur Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-primary--classroom",
+        "level": "Elementary",
+        "school": "Matt Arthur Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Matt Arthur Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-primary--cafeteria",
+        "level": "Elementary",
+        "school": "Matt Arthur Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Matt Arthur Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "matt-arthur-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "Matt Arthur Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Matt Arthur Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "miller-elementary--classroom",
+        "level": "Elementary",
+        "school": "Miller Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Miller Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "miller-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Miller Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Miller Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "miller-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Miller Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Miller Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "morningside-elementary--classroom",
+        "level": "Elementary",
+        "school": "Morningside Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Morningside Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "morningside-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Morningside Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Morningside Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "morningside-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Morningside Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Morningside Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-elementary--classroom",
+        "level": "Elementary",
+        "school": "Northside Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Northside Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Northside Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Northside Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Northside Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Northside Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "parkwood-primary--classroom",
+        "level": "Elementary",
+        "school": "Parkwood Primary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Parkwood Primary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "parkwood-primary--cafeteria",
+        "level": "Elementary",
+        "school": "Parkwood Primary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Parkwood Primary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "parkwood-primary--elementary-gym",
+        "level": "Elementary",
+        "school": "Parkwood Primary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Parkwood Primary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "pearl-stephens-elementary--classroom",
+        "level": "Elementary",
+        "school": "Pearl Stephens Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Pearl Stephens Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "pearl-stephens-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Pearl Stephens Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Pearl Stephens Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "pearl-stephens-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Pearl Stephens Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Pearl Stephens Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "quail-run-elementary--classroom",
+        "level": "Elementary",
+        "school": "Quail Run Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Quail Run Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "quail-run-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Quail Run Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Quail Run Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "quail-run-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Quail Run Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Quail Run Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "russell-elementary--classroom",
+        "level": "Elementary",
+        "school": "Russell Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Russell Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "russell-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Russell Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Russell Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "russell-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Russell Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Russell Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "shirley-hills-elementary--classroom",
+        "level": "Elementary",
+        "school": "Shirley Hills Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Shirley Hills Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "shirley-hills-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Shirley Hills Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Shirley Hills Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "shirley-hills-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Shirley Hills Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Shirley Hills Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "tucker-elementary--classroom",
+        "level": "Elementary",
+        "school": "Tucker Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Tucker Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "tucker-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Tucker Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Tucker Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "tucker-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Tucker Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Tucker Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "westside-elementary--classroom",
+        "level": "Elementary",
+        "school": "Westside Elementary",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Westside Elementary Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "westside-elementary--cafeteria",
+        "level": "Elementary",
+        "school": "Westside Elementary",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Westside Elementary Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "westside-elementary--elementary-gym",
+        "level": "Elementary",
+        "school": "Westside Elementary",
+        "type": "Elementary Gym",
+        "group": "Gym",
+        "name": "Westside Elementary Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee; confirm gym type and availability. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--classroom",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Bonaire Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--cafeteria",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Bonaire Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Bonaire Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Bonaire Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Bonaire Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "bonaire-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Bonaire Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Bonaire Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--classroom",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Feagin Mill Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--cafeteria",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Feagin Mill Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Feagin Mill Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Feagin Mill Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Feagin Mill Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "feagin-mill-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Feagin Mill Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Feagin Mill Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--classroom",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Huntington Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--cafeteria",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Huntington Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Huntington Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Huntington Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Huntington Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "huntington-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Huntington Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Huntington Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--classroom",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Mossy Creek Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--cafeteria",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Mossy Creek Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Mossy Creek Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Mossy Creek Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Mossy Creek Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "mossy-creek-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Mossy Creek Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Mossy Creek Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--classroom",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Northside Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--cafeteria",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Northside Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Northside Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Northside Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Northside Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Northside Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Northside Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--classroom",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Perry Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--cafeteria",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Perry Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Perry Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Perry Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Perry Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Perry Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Perry Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--classroom",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Thomson Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--cafeteria",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Thomson Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Thomson Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Thomson Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Thomson Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "thomson-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Thomson Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Thomson Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--classroom",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Warner Robins Middle Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--cafeteria",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Warner Robins Middle Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--middle-school-gym",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Middle School Gym",
+        "group": "Gym",
+        "name": "Warner Robins Middle Gym",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether the public listing should distinguish competition and regular gyms. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--middle-school-stadium",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Middle School Stadium",
+        "group": "Stadium",
+        "name": "Warner Robins Middle Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm lights and stadium-specific restrictions. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--middle-school-track",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Middle School Track",
+        "group": "Track",
+        "name": "Warner Robins Middle Track",
+        "verification": "Assumed - verify",
+        "variant": "Surface unknown",
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Verify surface: asphalt is $50/hr or $200/block; rubber is $100/hr or $400/block. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-middle--middle-school-baseball-softball",
+        "level": "Middle",
+        "school": "Warner Robins Middle",
+        "type": "Middle School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Warner Robins Middle Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 75,
+        "block": 300,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm whether baseball and softball need separate public listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--classroom",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Houston County High Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--cafeteria",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Houston County High Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--regular-gymnasium",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "Regular Gymnasium",
+        "group": "Gym",
+        "name": "Houston County High Regular Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--competition-gymnasium",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "Competition Gymnasium",
+        "group": "Gym",
+        "name": "Houston County High Competition Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--high-school-stadium",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "High School Stadium",
+        "group": "Stadium",
+        "name": "Houston County High Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 175,
+        "block": 700,
+        "supportsLights": true,
+        "route": "operations",
+        "capacity": null,
+        "notes": "Published base rate excludes lights. School Operations manages the stadium calendar. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--high-school-track",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "High School Track",
+        "group": "Track",
+        "name": "Houston County High Track",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--high-school-baseball-softball",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "High School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Houston County High Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights; confirm whether fields need separate listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "houston-county-high--auditorium-theater",
+        "level": "High",
+        "school": "Houston County High",
+        "type": "Auditorium / Theater",
+        "group": "Auditorium",
+        "name": "Houston County High Auditorium / Theater",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 125,
+        "block": 500,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm auditorium capacity and available technical systems. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--classroom",
+        "level": "High",
+        "school": "Northside High",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Northside High Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--cafeteria",
+        "level": "High",
+        "school": "Northside High",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Northside High Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--regular-gymnasium",
+        "level": "High",
+        "school": "Northside High",
+        "type": "Regular Gymnasium",
+        "group": "Gym",
+        "name": "Northside High Regular Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--competition-gymnasium",
+        "level": "High",
+        "school": "Northside High",
+        "type": "Competition Gymnasium",
+        "group": "Gym",
+        "name": "Northside High Competition Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--high-school-stadium",
+        "level": "High",
+        "school": "Northside High",
+        "type": "High School Stadium",
+        "group": "Stadium",
+        "name": "Northside High Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 175,
+        "block": 700,
+        "supportsLights": true,
+        "route": "operations",
+        "capacity": null,
+        "notes": "Published base rate excludes lights. School Operations manages the stadium calendar. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--high-school-track",
+        "level": "High",
+        "school": "Northside High",
+        "type": "High School Track",
+        "group": "Track",
+        "name": "Northside High Track",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--high-school-baseball-softball",
+        "level": "High",
+        "school": "Northside High",
+        "type": "High School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Northside High Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights; confirm whether fields need separate listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "northside-high--auditorium-theater",
+        "level": "High",
+        "school": "Northside High",
+        "type": "Auditorium / Theater",
+        "group": "Auditorium",
+        "name": "Northside High Auditorium / Theater",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 125,
+        "block": 500,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm auditorium capacity and available technical systems. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--classroom",
+        "level": "High",
+        "school": "Perry High",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Perry High Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--cafeteria",
+        "level": "High",
+        "school": "Perry High",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Perry High Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--regular-gymnasium",
+        "level": "High",
+        "school": "Perry High",
+        "type": "Regular Gymnasium",
+        "group": "Gym",
+        "name": "Perry High Regular Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--competition-gymnasium",
+        "level": "High",
+        "school": "Perry High",
+        "type": "Competition Gymnasium",
+        "group": "Gym",
+        "name": "Perry High Competition Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--high-school-stadium",
+        "level": "High",
+        "school": "Perry High",
+        "type": "High School Stadium",
+        "group": "Stadium",
+        "name": "Perry High Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 175,
+        "block": 700,
+        "supportsLights": true,
+        "route": "operations",
+        "capacity": null,
+        "notes": "Published base rate excludes lights. School Operations manages the stadium calendar. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--high-school-track",
+        "level": "High",
+        "school": "Perry High",
+        "type": "High School Track",
+        "group": "Track",
+        "name": "Perry High Track",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--high-school-baseball-softball",
+        "level": "High",
+        "school": "Perry High",
+        "type": "High School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Perry High Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights; confirm whether fields need separate listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "perry-high--auditorium-theater",
+        "level": "High",
+        "school": "Perry High",
+        "type": "Auditorium / Theater",
+        "group": "Auditorium",
+        "name": "Perry High Auditorium / Theater",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 125,
+        "block": 500,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm auditorium capacity and available technical systems. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--classroom",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Veterans High Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--cafeteria",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Veterans High Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--regular-gymnasium",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "Regular Gymnasium",
+        "group": "Gym",
+        "name": "Veterans High Regular Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--competition-gymnasium",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "Competition Gymnasium",
+        "group": "Gym",
+        "name": "Veterans High Competition Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--high-school-stadium",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "High School Stadium",
+        "group": "Stadium",
+        "name": "Veterans High Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 175,
+        "block": 700,
+        "supportsLights": true,
+        "route": "operations",
+        "capacity": null,
+        "notes": "Published base rate excludes lights. School Operations manages the stadium calendar. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--high-school-track",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "High School Track",
+        "group": "Track",
+        "name": "Veterans High Track",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--high-school-baseball-softball",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "High School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Veterans High Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights; confirm whether fields need separate listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "veterans-high--auditorium-theater",
+        "level": "High",
+        "school": "Veterans High",
+        "type": "Auditorium / Theater",
+        "group": "Auditorium",
+        "name": "Veterans High Auditorium / Theater",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 125,
+        "block": 500,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm auditorium capacity and available technical systems. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--classroom",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "Classroom",
+        "group": "Classroom",
+        "name": "Warner Robins High Classroom",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": null,
+        "block": "Committee estimate",
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Rate set by Facilities Committee. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--cafeteria",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "Cafeteria",
+        "group": "Cafeteria",
+        "name": "Warner Robins High Cafeteria",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 60,
+        "block": 240,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Kitchen access is not included. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--regular-gymnasium",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "Regular Gymnasium",
+        "group": "Gym",
+        "name": "Warner Robins High Regular Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--competition-gymnasium",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "Competition Gymnasium",
+        "group": "Gym",
+        "name": "Warner Robins High Competition Gymnasium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Assumed to use the published High School Gym rate; verify. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--high-school-stadium",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "High School Stadium",
+        "group": "Stadium",
+        "name": "Warner Robins High Stadium",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 175,
+        "block": 700,
+        "supportsLights": true,
+        "route": "operations",
+        "capacity": null,
+        "notes": "Published base rate excludes lights. School Operations manages the stadium calendar. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--high-school-track",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "High School Track",
+        "group": "Track",
+        "name": "Warner Robins High Track",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 100,
+        "block": 400,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--high-school-baseball-softball",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "High School Baseball/Softball",
+        "group": "Baseball/Softball",
+        "name": "Warner Robins High Baseball/Softball",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 150,
+        "block": 600,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Published rate is for use without lights; confirm whether fields need separate listings. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      },
+      {
+        "id": "warner-robins-high--auditorium-theater",
+        "level": "High",
+        "school": "Warner Robins High",
+        "type": "Auditorium / Theater",
+        "group": "Auditorium",
+        "name": "Warner Robins High Auditorium / Theater",
+        "verification": "Assumed - verify",
+        "variant": null,
+        "rate": 125,
+        "block": 500,
+        "supportsLights": false,
+        "route": "school",
+        "capacity": null,
+        "notes": "Confirm auditorium capacity and available technical systems. Facility type is inferred from planning assumptions and must be confirmed by the school."
+      }
+    ];
+
+    const schools = [
+      {
+        "level": "Elementary",
+        "name": "Bonaire Elementary",
+        "principal": "Dr. Tonya Pinckley",
+        "phone": "478-929-7826",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Bonaire Primary",
+        "principal": "Mrs. Amanda Parker",
+        "phone": "478-922-2194",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "C.B. Watson Primary",
+        "principal": "Mrs. Monique Dawsey",
+        "phone": "478-929-6360",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Centerville Elementary",
+        "principal": "Mrs. Marcie Shaw",
+        "phone": "478-953-0400",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "David Perdue Elementary",
+        "principal": "Dr. Andy Payne",
+        "phone": "478-988-6350",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "David Perdue Primary",
+        "principal": "Mrs. Kathy Gibbs",
+        "phone": "478-218-7500",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Eagle Springs Elementary",
+        "principal": "Dr. Jeff Washington",
+        "phone": "478-953-0450",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Hilltop Elementary",
+        "principal": "Dr. Ovedia Glover",
+        "phone": "478-929-6113",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Kings Chapel Elementary",
+        "principal": "Mrs. Shelley Shillcutt",
+        "phone": "478-988-6273",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Lake Joy Elementary",
+        "principal": "Dr. Artia Shorter",
+        "phone": "478-971-2712",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Lake Joy Primary",
+        "principal": "Dr. Sonya Kiefer",
+        "phone": "478-953-0465",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Langston Road Elementary",
+        "principal": "Dr. Erin Gramley",
+        "phone": "478-988-6160",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Langston Road Primary",
+        "principal": "Dr. Christie Bergh",
+        "phone": "478-988-6148",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Matt Arthur Elementary",
+        "principal": "Mrs. Kasey Hopkins",
+        "phone": "478-988-6170",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Matt Arthur Primary",
+        "principal": "Mrs. Morgan Aeschlimann",
+        "phone": "478-210-7600",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Miller Elementary",
+        "principal": "Mrs. Tiana Johnson",
+        "phone": "478-929-7814",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Morningside Elementary",
+        "principal": "Dr. Kasandra King",
+        "phone": "478-988-6261",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Northside Elementary",
+        "principal": "Dr. Kristina Cummings",
+        "phone": "478-929-7816",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Parkwood Primary",
+        "principal": "Mrs. Kelly Munn",
+        "phone": "478-929-7822",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Pearl Stephens Elementary",
+        "principal": "Mrs. Jessica Teemer",
+        "phone": "478-929-7895",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Quail Run Elementary",
+        "principal": "Dr. Amanda Miliner",
+        "phone": "478-953-0415",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Russell Elementary",
+        "principal": "Mr. William Wilson",
+        "phone": "478-929-7830",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Shirley Hills Elementary",
+        "principal": "Mrs. Kristen Brooks",
+        "phone": "478-929-7824",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Tucker Elementary",
+        "principal": "Mrs. Eddie Williams",
+        "phone": "478-988-6278",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Elementary",
+        "name": "Westside Elementary",
+        "principal": "Mrs. Angienik Allen",
+        "phone": "478-929-7820",
+        "email": "To be collected",
+        "stadium": "N/A"
+      },
+      {
+        "level": "Middle",
+        "name": "Bonaire Middle",
+        "principal": "Mrs. Rebecca Oakley",
+        "phone": "478-929-6235",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Feagin Mill Middle",
+        "principal": "Mrs. Elizabeth Foster",
+        "phone": "478-953-0430",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Huntington Middle",
+        "principal": "Dr. Marlon Robinson",
+        "phone": "478-542-2240",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Mossy Creek Middle",
+        "principal": "Dr. Jody Dean",
+        "phone": "478-988-6171",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Northside Middle",
+        "principal": "Dr. Alma Mundy",
+        "phone": "478-929-7845",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Perry Middle",
+        "principal": "Dr. Heath Burch",
+        "phone": "478-988-6285",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Thomson Middle",
+        "principal": "Dr. Scott Wynn",
+        "phone": "478-953-0489",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "Middle",
+        "name": "Warner Robins Middle",
+        "principal": "Mr. Steven Ruzic",
+        "phone": "478-929-7832",
+        "email": "To be collected",
+        "stadium": "School route"
+      },
+      {
+        "level": "High",
+        "name": "Houston County High",
+        "principal": "Dr. Jay Jones",
+        "phone": "478-988-6340",
+        "email": "To be collected",
+        "stadium": "School Operations"
+      },
+      {
+        "level": "High",
+        "name": "Northside High",
+        "principal": "Dr. Dustin Dykes",
+        "phone": "478-929-7858",
+        "email": "To be collected",
+        "stadium": "School Operations"
+      },
+      {
+        "level": "High",
+        "name": "Perry High",
+        "principal": "Dr. Art Billings",
+        "phone": "478-988-6298",
+        "email": "To be collected",
+        "stadium": "School Operations"
+      },
+      {
+        "level": "High",
+        "name": "Veterans High",
+        "principal": "Mr. Chad Simmons",
+        "phone": "478-218-7537",
+        "email": "To be collected",
+        "stadium": "School Operations"
+      },
+      {
+        "level": "High",
+        "name": "Warner Robins High",
+        "principal": "Dr. Brett Wallace",
+        "phone": "478-929-7877",
+        "email": "To be collected",
+        "stadium": "School Operations"
+      }
+    ];
+
+    const feeSchedule = [
+      ["Cafeteria", "$60", "$240", "$30/hr", "$50/hr", "$42/hr"],
+      ["Middle School Gym", "$75", "$300", "$30/hr", "$50/hr", "$42/hr"],
+      ["High School Gym", "$150", "$600", "$30/hr", "$50/hr", "$42/hr"],
+      ["Auditorium / Theater", "$125", "$500", "$30/hr", "$50/hr", "$42/hr"],
+      ["Middle School Stadium", "$100", "$400", "$30/hr", "$50/hr", "$42/hr"],
+      ["High School Stadium no lights", "$175", "$700", "$30/hr", "$50/hr", "$42/hr"],
+      ["Middle School Baseball/Softball", "$75", "$300", "$30/hr", "$50/hr", "$42/hr"],
+      ["High School Baseball/Softball no lights", "$150", "$600", "$30/hr", "$50/hr", "$42/hr"],
+      ["Middle School Track - asphalt", "$50", "$200", "$30/hr", "$50/hr", "$42/hr"],
+      ["Middle School Track - rubber", "$100", "$400", "$30/hr", "$50/hr", "$42/hr"],
+      ["High School Track no lights", "$100", "$400", "$30/hr", "$50/hr", "$42/hr"],
+      ["Stadium Lights Add-On", "$75", "$300", "N/A", "N/A", "N/A"]
+    ];
+
+    let requests = [
+      {
+        id: "FR-2026-014",
+        group: "Houston County Robotics Club",
+        contact: "Jordan Lee",
+        email: "jordan.lee@example.org",
+        facilityId: "houston-county-high--auditorium-theater",
+        date: "2026-08-04",
+        time: "5:00 PM - 9:00 PM",
+        purpose: "Regional robotics showcase and awards program.",
+        status: "Insurance Needed",
+        owner: "Requester",
+        schoolDecision: "Approved",
+        secretaryDecision: "Ready",
+        committeeDecision: "Approved",
+        conditions: "Custodial support required. No law enforcement required.",
+        insurance: false,
+        payment: { received: false, amount: 584, date: "", method: "", notes: "Includes 4-hour facility block and estimated custodial support." },
+        reportNote: "Approved pending proof of insurance and payment."
+      },
+      {
+        id: "FR-2026-015",
+        group: "County Youth Soccer",
+        contact: "Mia Thompson",
+        email: "mia.thompson@example.org",
+        facilityId: "warner-robins-high--high-school-stadium",
+        date: "2026-08-16",
+        time: "8:00 AM - 12:00 PM",
+        purpose: "Community soccer clinic.",
+        status: "School Operations Review",
+        owner: "School Operations",
+        schoolDecision: "Pending",
+        secretaryDecision: "Not started",
+        committeeDecision: "Not started",
+        due: "Due tomorrow",
+        conditions: "Pending committee review.",
+        insurance: false,
+        payment: { received: false, amount: 900, date: "", method: "", notes: "Stadium route starts with School Operations." },
+        reportNote: "Pending first approval."
+      },
+      {
+        id: "FR-2026-016",
+        group: "Perry Civic Chorale",
+        contact: "Sam Rivera",
+        email: "sam.rivera@example.org",
+        facilityId: "perry-high--cafeteria",
+        date: "2026-07-29",
+        time: "6:00 PM - 8:00 PM",
+        purpose: "Annual community dinner.",
+        status: "Facilities Department Review",
+        owner: "Facilities Department",
+        schoolDecision: "Approved",
+        secretaryDecision: "Pending",
+        committeeDecision: "Not started",
+        due: "Due today",
+        conditions: "Facilities Department confirms application completeness before committee routing.",
+        insurance: false,
+        payment: { received: false, amount: 360, date: "", method: "", notes: "" },
+        reportNote: "Awaiting committee decision."
+      },
+      {
+        id: "FR-2026-017",
+        group: "Private Birthday Party",
+        contact: "Taylor Morgan",
+        email: "taylor.morgan@example.org",
+        facilityId: "mossy-creek-middle--middle-school-gym",
+        date: "2026-08-02",
+        time: "2:00 PM - 5:00 PM",
+        purpose: "Family birthday party.",
+        status: "Denied",
+        owner: "Closed",
+        schoolDecision: "Denied",
+        secretaryDecision: "Not applicable",
+        committeeDecision: "Not applicable",
+        denialLevel: "School",
+        conditions: "Not eligible under district procedures.",
+        insurance: false,
+        payment: { received: false, amount: 0, date: "", method: "", notes: "" },
+        reportNote: "Denied at school level. Private individual/family events are not eligible."
+      },
+      {
+        id: "FR-2026-018",
+        group: "Middle Georgia Arts Council",
+        contact: "Dana Price",
+        email: "dana.price@example.org",
+        facilityId: "houston-county-high--auditorium-theater",
+        date: "2026-08-21",
+        time: "4:00 PM - 10:00 PM",
+        purpose: "Public performing arts showcase.",
+        status: "Committee Review",
+        owner: "Facilities Committee",
+        schoolDecision: "Approved",
+        secretaryDecision: "Ready",
+        committeeDecision: "Pending",
+        due: "Due in 2 business days",
+        conditions: "Committee may adjust hours and add personnel requirements.",
+        insurance: false,
+        payment: { received: false, amount: 1214, date: "", method: "", notes: "Estimated two 4-hour blocks, custodial support, and maintenance support." },
+        reportNote: "Application complete. Awaiting committee decision and final personnel estimate."
+      },
+      {
+        id: "FR-2026-019",
+        group: "Houston County Debate Association",
+        contact: "Riley Chen",
+        email: "riley.chen@example.org",
+        facilityId: "perry-high--cafeteria",
+        date: "2026-08-28",
+        time: "8:00 AM - 4:00 PM",
+        purpose: "Countywide student debate invitational hosted by an outside nonprofit.",
+        status: "School Review",
+        owner: "Perry High School approvers",
+        schoolDecision: "Pending",
+        secretaryDecision: "Not started",
+        committeeDecision: "Not started",
+        due: "Due in 2 business days",
+        conditions: "Pending school calendar and intended-use review.",
+        insurance: false,
+        payment: { received: false, amount: 600, date: "", method: "", notes: "Estimated two 4-hour blocks plus custodial support." },
+        reportNote: "Principal, AP, and school secretary notified. Awaiting one school decision."
+      }
+    ];
+
+    let selectedRequestId = requests[0].id;
+    let filter = "all";
+    let currentRole = "school";
+
+    const roleViews = {
+      school: { label: "School approver", title: "School approval queue", subtitle: "The principal, AP, and school secretary receive the notification; one authorized person records the school decision.", banner: "Requests for your school that need an initial approve or deny decision. The expected turnaround is two business days.", statuses: ["School Review"] },
+      operations: { label: "School Operations", title: "High school stadium queue", subtitle: "High school stadium requests bypass the principal. School Operations checks availability, records the decision, updates the internal stadium calendar, and notifies the school.", banner: "High school stadium requests, calendar status, deadlines, and first-level decision controls.", statuses: ["School Operations Review"] },
+      secretary: { label: "Facilities Department", title: "Facilities coordination queue", subtitle: "Review approved applications before committee routing, then verify insurance and record check payments after committee approval.", banner: "Application completeness, committee routing, certificate uploads, check payments, and five-business-day payment deadlines.", statuses: ["Facilities Department Review", "Insurance Needed", "Payment Needed"] },
+      committee: { label: "Facilities Committee", title: "Committee decision queue", subtitle: "One authorized member records the committee decision for Dr. Chris Brown, Dr. Richard Rogers, Billy Dollar, and Forrest Walker.", banner: "Approve, deny, or approve with conditions; adjust facility estimates and add custodial, maintenance, law-enforcement, equipment, or lighting costs.", statuses: ["Committee Review"] },
+      admin: { label: "Facilities administrator", title: "All facilities requests", subtitle: "District-wide oversight for routing, modifications, cancellations, denied-organization tracking, reporting, and setup data.", banner: "Every request and outcome, including the authority to modify or cancel approved events and flag organizations for future denial.", statuses: null }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    function facilityFor(request) {
+      return facilities.find((facility) => facility.id === request.facilityId);
+    }
+
+    function statusPill(status) {
+      if (status.includes("Denied")) return `<span class="pill red">${status}</span>`;
+      if (status.includes("Approved") || status.includes("Final")) return `<span class="pill green">${status}</span>`;
+      if (status.includes("Review")) return `<span class="pill gold">${status}</span>`;
+      if (status.includes("Insurance") || status.includes("Payment")) return `<span class="pill blue">${status}</span>`;
+      return `<span class="pill gray">${status}</span>`;
+    }
+
+    function addBusinessDays(date, days) {
+      const result = new Date(date);
+      let added = 0;
+      while (added < days) {
+        result.setDate(result.getDate() + 1);
+        const day = result.getDay();
+        if (day !== 0 && day !== 6) added++;
+      }
+      return result;
+    }
+
+    function businessDaysBetween(start, end) {
+      const a = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const b = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      let days = 0;
+      while (a < b) {
+        a.setDate(a.getDate() + 1);
+        const day = a.getDay();
+        if (day !== 0 && day !== 6) days++;
+      }
+      return days;
+    }
+
+    function todayDate() {
+      return new Date("2026-07-13T12:00:00");
+    }
+
+    function setDefaultDates() {
+      const minimum = addBusinessDays(todayDate(), 11);
+      $("#rentalDate").value = minimum.toISOString().slice(0, 10);
+      $("#rentalEndDate").value = minimum.toISOString().slice(0, 10);
+      updateDateNotice();
+      updateEstimate();
+    }
+
+    function updateDateNotice() {
+      const value = $("#rentalDate").value;
+      if (!value) return;
+      const days = businessDaysBetween(todayDate(), new Date(value + "T12:00:00"));
+      const notice = $("#dateNotice");
+      if (days < 10) {
+        notice.className = "full notice error";
+        notice.textContent = `Blocked: this request is only ${days} business days away. District procedure requires at least 10 business days.`;
+      } else {
+        notice.className = "full notice";
+        notice.textContent = `Eligible: this request is ${days} business days away. Multi-day requests must cover consecutive dates for one specific event; weekly, monthly, seasonal, or standing reservations are not allowed.`;
+      }
+    }
+
+    function calculateEstimate(facility, startDate, endDate, startTime, endTime, includeLights) {
+      const start = new Date(`${startDate}T12:00:00`);
+      const end = new Date(`${endDate}T12:00:00`);
+      const days = Math.max(1, Math.round((end - start) / 86400000) + 1);
+      const startMinutes = Number(startTime.slice(0, 2)) * 60 + Number(startTime.slice(3));
+      const endMinutes = Number(endTime.slice(0, 2)) * 60 + Number(endTime.slice(3));
+      const hoursPerDay = Math.max(0, (endMinutes - startMinutes) / 60);
+      const blocksPerDay = Math.max(1, Math.ceil(hoursPerDay / 4));
+      const facilityFee = typeof facility.block === "number" ? facility.block * blocksPerDay * days : null;
+      const custodial = hoursPerDay * days * 30;
+      const lights = includeLights && facility.supportsLights ? 300 * blocksPerDay * days : 0;
+      return { days, hoursPerDay, blocksPerDay, facilityFee, custodial, lights, total: (facilityFee || 0) + custodial + lights };
+    }
+
+    function updateEstimate() {
+      const facility = facilities.find((item) => item.id === $("#facilitySelect").value);
+      if (!facility) return;
+      const lightsAllowed = Boolean(facility.supportsLights);
+      $("#lightsField").hidden = !lightsAllowed;
+      if (!lightsAllowed) $("#stadiumLights").checked = false;
+      if (!$("#rentalDate").value || !$("#rentalEndDate").value) return;
+      const estimate = calculateEstimate(
+        facility,
+        $("#rentalDate").value,
+        $("#rentalEndDate").value,
+        $('[name="start"]').value,
+        $('[name="end"]').value,
+        $("#stadiumLights").checked
+      );
+      const blockLabel = `${estimate.blocksPerDay} four-hour block${estimate.blocksPerDay === 1 ? "" : "s"} per day × ${estimate.days} day${estimate.days === 1 ? "" : "s"}`;
+      const hourLabel = `${estimate.hoursPerDay} event hour${estimate.hoursPerDay === 1 ? "" : "s"} per day × ${estimate.days} day${estimate.days === 1 ? "" : "s"}`;
+      $("#estimateLines").innerHTML = `
+        <div class="estimate-line"><span>Facility fee (${blockLabel})</span><span>${estimate.facilityFee === null ? "Set by committee" : `$${estimate.facilityFee.toFixed(2)}`}</span></div>
+        <div class="estimate-line"><span>Custodial estimate (1 custodian × ${hourLabel} @ $30/hour)</span><span>$${estimate.custodial.toFixed(2)}</span></div>
+        ${estimate.lights ? `<div class="estimate-line"><span>Stadium lights (${blockLabel})</span><span>$${estimate.lights.toFixed(2)}</span></div>` : ""}
+        <div class="estimate-line pending"><span>Additional custodians, if required</span><span>Determined by committee</span></div>
+        <div class="estimate-line pending"><span>Law enforcement ($50/hour), if required</span><span>Determined by committee</span></div>
+        <div class="estimate-line pending"><span>Maintenance ($42/hour), if required</span><span>Determined by committee</span></div>
+      `;
+      $("#estimateTotal").textContent = estimate.facilityFee === null ? `$${estimate.total.toFixed(2)} + facility fee` : `$${estimate.total.toFixed(2)}+`;
+      return estimate;
+    }
+
+    function showView(id) {
+      const isPublic = ["public", "request", "status"].includes(id);
+      document.body.classList.toggle("public-mode", isPublic);
+      document.body.classList.toggle("staff-mode", !isPublic);
+      $$(".view").forEach((view) => view.classList.toggle("active", view.id === id));
+      $$(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.view === id));
+      if (id === "status") renderStatus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function requestMatchesRole(request) {
+      const statuses = roleViews[currentRole].statuses;
+      return !statuses || statuses.includes(request.status);
+    }
+
+    function renderRoleView() {
+      const role = roleViews[currentRole];
+      $("#dashboardTitle").textContent = role.title;
+      $("#dashboardSubtitle").textContent = role.subtitle;
+      $("#roleBannerText").textContent = role.banner;
+      $("#roleBadge").textContent = role.label;
+      $("#signedInAs").textContent = `Signed in as Alex Morgan · ${role.label}`;
+      $("#thirdStatLabel").textContent = currentRole === "secretary" ? "Requirements due" : "Due in 2 days";
+      $("#thirdStatBadge").textContent = currentRole === "secretary" ? "Follow up" : "Target";
+      $$('[data-roles]').forEach((button) => {
+        button.style.display = button.dataset.roles.split(" ").includes(currentRole) ? "flex" : "none";
+      });
+    }
+
+    function renderDashboard() {
+      renderRoleView();
+      const roleRequests = requests.filter(requestMatchesRole);
+      $("#activeCount").textContent = roleRequests.filter((request) => !["Denied", "Final Approved", "Cancelled"].includes(request.status)).length;
+      $("#approvalCount").textContent = roleRequests.filter((request) => request.status.includes("Review")).length;
+      $("#insuranceCount").textContent = currentRole === "secretary" ? roleRequests.filter((request) => ["Insurance Needed", "Payment Needed"].includes(request.status)).length : roleRequests.filter((request) => request.due).length;
+      $("#reportCount").textContent = requests.length;
+
+      const visible = roleRequests.filter((request) => {
+        if (filter === "review") return request.status.includes("Review");
+        if (filter === "requirements") return ["Insurance Needed", "Payment Needed"].includes(request.status);
+        if (filter === "closed") return ["Denied", "Final Approved", "Cancelled"].includes(request.status);
+        return true;
+      });
+      if (visible.length && !visible.some((request) => request.id === selectedRequestId)) selectedRequestId = visible[0].id;
+
+      $("#requestRows").innerHTML = visible.map((request) => {
+        const facility = facilityFor(request);
+        return `<tr>
+          <td><strong>${request.id}</strong></td>
+          <td>${request.group}<br><span class="muted small">${request.date} · ${request.time}</span></td>
+          <td>${facility.name}<br><span class="muted small">${facility.school}</span></td>
+          <td>${statusPill(request.status)}</td>
+          <td>${request.owner}${request.due ? `<br><span class="small due">${request.due}</span>` : ""}</td>
+          <td><button class="secondary" data-select="${request.id}">Open</button></td>
+        </tr>`;
+      }).join("");
+
+      $$("[data-select]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedRequestId = button.dataset.select;
+          renderDashboard();
+          renderStatus();
+        });
+      });
+
+      renderDetailPanel();
+      renderReport();
+    }
+
+    function renderDetailPanel() {
+      const request = requests.find((item) => item.id === selectedRequestId) || requests[0];
+      if (!requestMatchesRole(request)) {
+        $("#detailPanel").innerHTML = `<div class="notice">No requests are currently assigned to this role. Routed requests will appear here automatically.</div>`;
+        return;
+      }
+      const facility = facilityFor(request);
+      $("#detailPanel").innerHTML = `
+        <h3>${request.group}</h3>
+        <p>${facility.name}<br>${request.date}, ${request.time}</p>
+        <div>${statusPill(request.status)}</div>
+        <div class="checklist">
+          <div class="check-item"><span>School / operations</span><span class="pill ${request.schoolDecision === "Approved" ? "green" : request.schoolDecision === "Denied" ? "red" : "gold"}">${request.schoolDecision}</span></div>
+          <div class="check-item"><span>Facilities Department</span><span class="pill ${request.secretaryDecision === "Ready" ? "green" : request.secretaryDecision === "Pending" ? "gold" : "gray"}">${request.secretaryDecision || "Not started"}</span></div>
+          <div class="check-item"><span>Committee</span><span class="pill ${request.committeeDecision === "Approved" ? "green" : request.committeeDecision === "Pending" ? "gold" : "gray"}">${request.committeeDecision}</span></div>
+          <div class="check-item"><span>Proof of insurance</span><span class="pill ${request.insurance ? "green" : "blue"}">${request.insurance ? "Received" : "Needed"}</span></div>
+          <div class="check-item"><span>Payment</span><span class="pill ${request.payment.received ? "green" : "blue"}">${request.payment.received ? "Received" : "Due"}</span></div>
+        </div>
+        <div class="notice info" style="margin:12px 0"><strong>Conditions and estimate</strong><br>${request.conditions || "No conditions entered yet."}<br><strong>Current estimate: $${request.payment.amount}</strong></div>
+        <div class="action-row">
+          ${request.status === "School Review" && currentRole === "school" ? `<button class="success" data-action="approve">Approve</button><button class="danger" data-action="deny">Deny</button>` : ""}
+          ${request.status === "School Operations Review" && currentRole === "operations" ? `<button class="success" data-action="approve">Approve + add to calendar</button><button class="danger" data-action="deny">Deny</button>` : ""}
+          ${request.status === "Facilities Department Review" && currentRole === "secretary" ? `<button class="success" data-action="approve">Send to committee</button><button class="danger" data-action="deny">Return / deny</button>` : ""}
+          ${request.status === "Committee Review" && currentRole === "committee" ? `<button class="success" data-action="conditional">Approve with conditions</button><button class="danger" data-action="deny">Deny</button>` : ""}
+          ${request.status === "Insurance Needed" && currentRole === "secretary" ? `<button data-action="insurance">Verify insurance</button>` : ""}
+          ${request.status === "Payment Needed" && currentRole === "secretary" ? `<button data-action="payment">Record check payment</button>` : ""}
+          ${currentRole === "admin" && !["Denied", "Cancelled"].includes(request.status) ? `<button class="danger" data-action="cancel">Cancel / modify</button>` : ""}
+          ${currentRole === "admin" ? `<button class="secondary" data-action="flag">Flag organization</button>` : ""}
+          <button class="secondary" data-action="status">Open status link</button>
+        </div>
+      `;
+
+      $$("[data-action]").forEach((button) => button.addEventListener("click", () => handleAction(button.dataset.action, request.id)));
+    }
+
+    function handleAction(action, id) {
+      const request = requests.find((item) => item.id === id);
+      if (action === "status") {
+        selectedRequestId = id;
+        showView("status");
+        return;
+      }
+      if (action === "approve") {
+        if (request.status === "School Review") {
+          request.schoolDecision = "Approved";
+          request.status = "Facilities Department Review";
+          request.owner = "Facilities Department";
+          request.secretaryDecision = "Pending";
+          request.due = "Due in 2 business days";
+          request.reportNote = "Approved by school. Awaiting Facilities Department review.";
+        } else if (request.status === "School Operations Review") {
+          request.schoolDecision = "Approved";
+          request.status = "Facilities Department Review";
+          request.owner = "Facilities Department";
+          request.secretaryDecision = "Pending";
+          request.conditions = "School Operations confirmed availability and added the request to the internal stadium calendar; school notified.";
+          request.due = "Due in 2 business days";
+          request.reportNote = "School Operations approved and updated the stadium calendar. Awaiting Facilities Department review.";
+        } else if (request.status === "Facilities Department Review") {
+          request.secretaryDecision = "Ready";
+          request.status = "Committee Review";
+          request.owner = "Facilities Committee";
+          request.committeeDecision = "Pending";
+          request.due = "Due in 2 business days";
+          request.reportNote = "Application complete. Awaiting committee decision.";
+        }
+        modal("Approval recorded", "The prototype routes the request to the next owner and would send the next Outlook email notification.");
+      }
+      if (action === "conditional") {
+        request.committeeDecision = "Approved";
+        request.status = "Insurance Needed";
+        request.owner = "Requester";
+        request.due = "";
+        request.payment.amount += 292;
+        request.conditions = "Approved with required custodial support and law enforcement. Final personnel cost is billed as actuals; this amount is the current estimate.";
+        request.payment.notes = "Includes committee-added custodial and law-enforcement estimates. Payment by check due five business days before event.";
+        request.reportNote = "Committee approved with conditions. Proof of insurance and payment pending.";
+        modal("Conditional approval recorded", "The estimate and required personnel were updated. The requester would receive the conditions, upload link, and check-payment instructions by email.");
+      }
+      if (action === "deny") {
+        request.denialLevel = request.status === "Committee Review" ? "Facilities Committee" : request.status === "Facilities Department Review" ? "Facilities Department" : request.status === "School Operations Review" ? "School Operations" : "School";
+        request.status = "Denied";
+        request.owner = "Closed";
+        if (request.schoolDecision === "Pending") request.schoolDecision = "Denied";
+        if (request.committeeDecision === "Pending") request.committeeDecision = "Denied";
+        request.reportNote = "Denied and retained for the monthly facilities report.";
+        modal("Denial recorded", "The request is closed and remains available for the monthly board report.");
+      }
+      if (action === "insurance") {
+        request.insurance = true;
+        request.status = "Payment Needed";
+        request.owner = "Proof of Insurance and Payment";
+        request.reportNote = "Insurance received. Payment pending.";
+        modal("Insurance received", "The uploaded certificate is now associated with this request.");
+      }
+      if (action === "payment") {
+        request.payment.received = true;
+        request.payment.date = "2026-07-13";
+        request.payment.method = "Check";
+        request.status = "Final Approved";
+        request.owner = "Closed";
+        request.reportNote = "Final approval complete. Payment and insurance received.";
+        modal("Payment recorded", "The request is now final approved and the requester would receive a confirmation email.");
+      }
+      if (action === "cancel") {
+        request.status = "Cancelled";
+        request.owner = "Closed";
+        request.reportNote = "Cancelled by Facilities. Reschedule is attempted first; if unavailable, district-initiated cancellation is refunded.";
+        modal("Request cancelled", "The requester would be notified. Staff would first offer a reschedule and issue a refund when the district initiated the cancellation and no suitable date is available.");
+      }
+      if (action === "flag") {
+        request.flagged = true;
+        modal("Organization flagged", "The organization now appears on the denied-future-use registry for review by authorized Facilities staff or Dr. Brown.");
+      }
+      renderDashboard();
+      renderStatus();
+    }
+
+    function populateCatalogFilters() {
+      const levels = [...new Set(facilities.map((facility) => facility.level))];
+      const types = [...new Set(facilities.map((facility) => facility.group))];
+      const schoolNames = [...new Set(facilities.map((facility) => facility.school))];
+      $("#catalogLevel").innerHTML = `<option value="">All levels</option>${levels.map((level) => `<option>${level}</option>`).join("")}`;
+      $("#catalogType").innerHTML = `<option value="">All facility types</option>${types.map((type) => `<option>${type}</option>`).join("")}`;
+      $("#catalogSchool").innerHTML = `<option value="">All schools</option>${schoolNames.map((school) => `<option>${school}</option>`).join("")}`;
+    }
+
+    function renderFacilities() {
+      const query = $("#catalogSearch").value.trim().toLowerCase();
+      const level = $("#catalogLevel").value;
+      const type = $("#catalogType").value;
+      const selectedSchool = $("#catalogSchool").value;
+      const visibleFacilities = facilities.filter((facility) => {
+        const searchable = `${facility.school} ${facility.name} ${facility.type} ${facility.variant || ""}`.toLowerCase();
+        return (!query || searchable.includes(query))
+          && (!level || facility.level === level)
+          && (!type || facility.group === type)
+          && (!selectedSchool || facility.school === selectedSchool);
+      });
+      const schoolNames = [...new Set(visibleFacilities.map((facility) => facility.school))];
+      $("#catalogCount").textContent = `${visibleFacilities.length} ${visibleFacilities.length === 1 ? "facility" : "facilities"} at ${schoolNames.length} ${schoolNames.length === 1 ? "school" : "schools"}`;
+      if (!visibleFacilities.length) {
+        $("#facilityCards").innerHTML = `<div class="empty-catalog"><h2>No matching facilities</h2><p class="muted">Try a broader search or clear the catalog filters.</p></div>`;
+        return;
+      }
+      $("#facilityCards").innerHTML = schoolNames.map((school) => `<section class="school-section">
+        <h2>${school}</h2>
+        <div class="school-facilities">${visibleFacilities.filter((facility) => facility.school === school).map((facility) => `
+        <article class="facility-card">
+          <div class="facility-photo">${facility.type}</div>
+          <div class="facility-body">
+            <h3>${facility.name}</h3>
+            <p>${facility.level} school${facility.variant ? ` · ${facility.variant}` : ""}</p>
+            <div class="facility-meta">
+              <span class="pill gray">${facility.capacity === null ? "Capacity to be confirmed" : `${facility.capacity.toLocaleString()} capacity`}</span>
+              <span class="pill blue">${typeof facility.block === "number" ? `$${facility.block} / 4 hr` : facility.block}</span>
+              <span class="pill ${facility.route === "operations" ? "gold" : "green"}">${facility.route === "operations" ? "School Operations first" : "School first"}</span>
+              <span class="pill gold">Inventory to verify</span>
+            </div>
+            <p class="small">${facility.notes}</p>
+            <p class="small"><strong>Cost note:</strong> Every estimate includes one custodian at $30/hour. The Facilities Committee may require additional custodians, law enforcement, or maintenance.</p>
+            <button data-view-link="request" data-facility="${facility.id}">Request this facility</button>
+          </div>
+        </article>
+      `).join("")}</div></section>`).join("");
+    }
+
+    function populateFormChoices() {
+      const schoolNames = [...new Set(facilities.map((facility) => facility.school))];
+      $("#schoolSelect").innerHTML = schoolNames.map((name) => `<option>${name}</option>`).join("");
+      updateFacilityOptions();
+      $("#schoolSelect").addEventListener("change", updateFacilityOptions);
+    }
+
+    function updateFacilityOptions() {
+      const school = $("#schoolSelect").value;
+      const options = facilities.filter((facility) => facility.school === school);
+      $("#facilitySelect").innerHTML = options.map((facility) => `<option value="${facility.id}">${facility.name} - ${typeof facility.block === "number" ? `$${facility.block}/4 hr` : facility.block}</option>`).join("");
+      updateEstimate();
+    }
+
+    function renderStatus() {
+      const request = requests.find((item) => item.id === selectedRequestId) || requests[0];
+      const facility = facilityFor(request);
+      $("#statusTitle").textContent = `${request.id}: ${request.group}`;
+      $("#statusSummary").innerHTML = `
+        <p><strong>${facility.name}</strong><br>${request.date}, ${request.time}</p>
+        <p>${request.purpose}</p>
+        ${statusPill(request.status)}
+        <p class="small" style="margin-top:10px">Requester email: ${request.email}</p>
+        <div class="notice info"><strong>Current conditions</strong><br>${request.conditions || "No conditions have been entered."}</div>
+      `;
+
+      const steps = [
+        ["Submitted", "Request received and routed by facility.", true],
+        [facility.route === "operations" ? "School Operations approval" : "School approval", `Decision: ${request.schoolDecision}`, request.schoolDecision === "Approved", request.schoolDecision === "Pending", request.schoolDecision === "Denied"],
+        ["Facilities Department review", `Status: ${request.secretaryDecision || "Not started"}`, request.secretaryDecision === "Ready", request.secretaryDecision === "Pending"],
+        ["Facilities Committee decision", `Decision: ${request.committeeDecision}`, request.committeeDecision === "Approved", request.committeeDecision === "Pending", request.committeeDecision === "Denied"],
+        ["Proof of insurance", request.insurance ? "Certificate uploaded and verified." : "Upload required after committee approval: at least $1,000,000 liability coverage naming the district as additional insured.", request.insurance, request.status === "Insurance Needed"],
+        ["Payment", request.payment.received ? `${request.payment.method} received ${request.payment.date}.` : `Current estimate: $${request.payment.amount}. Check payment due at least 5 business days before use.`, request.payment.received, request.status === "Payment Needed"],
+        ["Final approval", request.status === "Final Approved" ? "Confirmation email sent." : "Pending prior requirements.", request.status === "Final Approved"]
+      ];
+
+      $("#statusTimeline").innerHTML = steps.map(([name, detail, done, current, blocked]) => `
+        <div class="step ${blocked ? "blocked" : current ? "current" : done ? "done" : ""}">
+          <div class="dot">${done ? "✓" : blocked ? "!" : "•"}</div>
+          <div><strong>${name}</strong><span>${detail}</span></div>
+        </div>
+      `).join("");
+
+      const canUpload = request.committeeDecision === "Approved" && !request.insurance;
+      $("#requesterRequirements").innerHTML = `
+        <div class="checklist">
+          <div class="check-item"><span>Certificate of liability insurance</span><span class="pill ${request.insurance ? "green" : canUpload ? "blue" : "gray"}">${request.insurance ? "Uploaded" : canUpload ? "Ready" : "Locked"}</span></div>
+          <div class="check-item"><span>Estimated payment</span><span class="money">$${request.payment.amount}</span></div>
+          <div class="check-item"><span>Payment status</span><span class="pill ${request.payment.received ? "green" : "blue"}">${request.payment.received ? "Received" : "Instructions emailed"}</span></div>
+        </div>
+        <div style="margin-top:14px">
+          ${canUpload ? `<label>Upload insurance certificate<input type="file" id="insuranceUpload" accept=".pdf,.jpg,.jpeg,.png" /></label><div class="action-row"><button id="uploadInsurance">Upload certificate</button></div>` : ""}
+          ${!canUpload && !request.insurance ? `<div class="notice warning">Insurance upload unlocks after the Facilities Committee approves the request.</div>` : ""}
+          ${request.insurance ? `<div class="notice">Certificate received. Staff can now verify payment and issue final approval.</div>` : ""}
+          <div class="notice warning" style="margin-top:10px">Personnel charges are estimates until the district establishes staffing. Approved multi-day use does not create a standing reservation. If the district cancels, staff first attempt to reschedule; a refund is issued when no suitable date is available.</div>
+        </div>
+      `;
+
+      const upload = $("#uploadInsurance");
+      if (upload) {
+        upload.addEventListener("click", () => {
+          request.insurance = true;
+          request.status = "Payment Needed";
+          request.owner = "Proof of Insurance and Payment";
+          request.reportNote = "Requester uploaded proof of insurance. Payment pending.";
+          modal("Upload received", "The certificate upload is attached to the request. In production, this would store the file securely and notify staff.");
+          renderDashboard();
+          renderStatus();
+        });
+      }
+    }
+
+    function renderReport() {
+      $("#reportRows").innerHTML = requests.map((request) => {
+        const facility = facilityFor(request);
+        const outcome = request.status === "Denied" ? "Denied" : request.status === "Final Approved" ? "Approved" : "Pending";
+        return `<tr>
+          <td><strong>${request.id}</strong><br><span class="muted small">${request.purpose}</span></td>
+          <td>${request.group}<br><span class="muted small">${request.contact}</span></td>
+          <td>${facility.name}<br><span class="muted small">${facility.school}</span></td>
+          <td>${request.date}</td>
+          <td>${statusPill(outcome)}</td>
+          <td>${request.status === "Denied" ? request.denialLevel || "School" : request.committeeDecision === "Approved" ? "Facilities Committee" : request.owner}</td>
+          <td>${request.reportNote}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderSettings() {
+      $("#schoolRows").innerHTML = schools.map((school) => `<tr>
+        <td>${school.name}</td>
+        <td>${school.principal}<br><span class="muted small">${school.phone}</span></td>
+        <td>${school.email}</td>
+        <td>${school.stadium}</td>
+      </tr>`).join("");
+
+      $("#feeRows").innerHTML = feeSchedule.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("");
+    }
+
+    function modal(title, text) {
+      $("#modalTitle").textContent = title;
+      $("#modalText").textContent = text;
+      $("#modalActions").innerHTML = `<button id="okModal">OK</button>`;
+      $("#modal").classList.add("active");
+      $("#okModal").addEventListener("click", closeModal);
+    }
+
+    function closeModal() {
+      $("#modal").classList.remove("active");
+    }
+
+    function bindEvents() {
+      ["#catalogSearch", "#catalogLevel", "#catalogType", "#catalogSchool"].forEach((selector) => {
+        $(selector).addEventListener(selector === "#catalogSearch" ? "input" : "change", renderFacilities);
+      });
+      $("#clearCatalogFilters").addEventListener("click", () => {
+        $("#catalogSearch").value = "";
+        $("#catalogLevel").value = "";
+        $("#catalogType").value = "";
+        $("#catalogSchool").value = "";
+        renderFacilities();
+      });
+      $$(".nav-button").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view)));
+      $("#roleSelect").addEventListener("change", (event) => {
+        currentRole = event.target.value;
+        filter = "all";
+        $$("#requestFilter button").forEach((button) => button.classList.toggle("active", button.dataset.filter === "all"));
+        renderDashboard();
+      });
+      document.body.addEventListener("click", (event) => {
+        if (event.target.closest("[data-staff-preview]")) {
+          showView("dashboard");
+          return;
+        }
+        const target = event.target.closest("[data-view-link]");
+        if (target) {
+          if (target.dataset.facility) {
+            const facility = facilities.find((item) => item.id === target.dataset.facility);
+            $("#schoolSelect").value = facility.school;
+            updateFacilityOptions();
+            $("#facilitySelect").value = facility.id;
+            updateEstimate();
+          }
+          showView(target.dataset.viewLink);
+        }
+      });
+      $("#closeModal").addEventListener("click", closeModal);
+      $("#modal").addEventListener("click", (event) => {
+        if (event.target.id === "modal") closeModal();
+      });
+      $("#requestFilter").addEventListener("click", (event) => {
+        if (!event.target.matches("button")) return;
+        filter = event.target.dataset.filter;
+        $$("#requestFilter button").forEach((button) => button.classList.toggle("active", button === event.target));
+        renderDashboard();
+      });
+      $("#rentalDate").addEventListener("change", updateDateNotice);
+      $("#rentalDate").addEventListener("change", () => {
+        if (!$("#rentalEndDate").value || $("#rentalEndDate").value < $("#rentalDate").value) $("#rentalEndDate").value = $("#rentalDate").value;
+        updateEstimate();
+      });
+      $("#rentalForm").addEventListener("input", (event) => {
+        if (event.target.matches('#facilitySelect, #rentalEndDate, #stadiumLights, [name="start"], [name="end"]')) updateEstimate();
+      });
+      $("#rentalForm").addEventListener("change", (event) => {
+        if (event.target.matches('#facilitySelect, #rentalEndDate, #stadiumLights, [name="start"], [name="end"]')) updateEstimate();
+      });
+      $("#fillTooSoon").addEventListener("click", () => {
+        const blocked = addBusinessDays(todayDate(), 5);
+        $("#rentalDate").value = blocked.toISOString().slice(0, 10);
+        $("#rentalEndDate").value = $("#rentalDate").value;
+        updateDateNotice();
+        updateEstimate();
+      });
+      $("#rentalForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const days = businessDaysBetween(todayDate(), new Date(form.get("date") + "T12:00:00"));
+        if (days < 10) {
+          modal("Request blocked", "District procedure requires applications at least 10 business days prior to the requested use date.");
+          return;
+        }
+        if (form.get("endDate") < form.get("date")) {
+          modal("Date range blocked", "The last rental date cannot be before the first rental date.");
+          return;
+        }
+        if (form.get("end") <= form.get("start")) {
+          modal("Time range blocked", "The end time must be later than the start time so the estimate can be calculated correctly.");
+          return;
+        }
+        if (/wedding|funeral|wake|birthday|family reunion/i.test(form.get("purpose"))) {
+          modal("Request not eligible", "District facilities are not available for private individual or family events, including weddings, funerals, wakes, birthday parties, or family reunions.");
+          return;
+        }
+        const facility = facilities.find((item) => item.id === form.get("facility"));
+        const firstOwner = facility.route === "operations" ? "School Operations" : `${facility.school} first approver`;
+        const estimate = calculateEstimate(facility, form.get("date"), form.get("endDate"), form.get("start"), form.get("end"), form.get("stadiumLights") === "on");
+        const newRequest = {
+          id: `FR-2026-${String(requests.length + 18).padStart(3, "0")}`,
+          group: form.get("group"),
+          contact: form.get("contact"),
+          email: form.get("email"),
+          facilityId: facility.id,
+          date: form.get("date"),
+          endDate: form.get("endDate"),
+          time: `${form.get("start")} - ${form.get("end")}`,
+          purpose: form.get("purpose"),
+          status: facility.route === "operations" ? "School Operations Review" : "School Review",
+          owner: firstOwner,
+          schoolDecision: "Pending",
+          secretaryDecision: "Not started",
+          committeeDecision: "Not started",
+          due: "Due in 2 business days",
+          conditions: `Estimate includes one custodian for scheduled event hours${estimate.lights ? " and stadium lights" : ""}. Additional custodians, law enforcement, and maintenance may be required by the Facilities Committee.`,
+          insurance: false,
+          payment: { received: false, amount: estimate.total, date: "", method: "", notes: `Initial estimate includes ${estimate.facilityFee === null ? "custodial costs; facility fee pending" : "facility and custodial costs"}${estimate.lights ? ", plus stadium lights" : ""}. Committee-required personnel costs are added during review.` },
+          reportNote: `Submitted and routed to ${firstOwner}.`
+        };
+        requests.unshift(newRequest);
+        selectedRequestId = newRequest.id;
+        renderDashboard();
+        renderReport();
+        renderStatus();
+        modal("Request submitted", "The requester would receive an Outlook email with a secure status link, and the first approver would receive an approval email.");
+        showView("dashboard");
+      });
+    }
+
+    function init() {
+      populateCatalogFilters();
+      populateFormChoices();
+      setDefaultDates();
+      renderFacilities();
+      renderSettings();
+      renderDashboard();
+      renderStatus();
+      bindEvents();
+    }
+
+    init();
+  </script>
+</body>
+</html>

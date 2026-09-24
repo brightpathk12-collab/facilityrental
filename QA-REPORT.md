@@ -1,4 +1,6 @@
-# Facilities Rental Portal — QA Report
+# Facilities Rental Portal — QA Report (retired prototype only)
+
+> **Superseded.** This reviews the static GitHub Pages prototype in this repo, not the live portal at rentfacilities.com. For the live app, see `QA-REPORT-LIVE-PORTAL.md`.
 
 **Date:** September 24, 2026
 **Build reviewed:** `index.html` "Prototype v7" plus `photos/` (commit `4bd90ef`)
